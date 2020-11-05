@@ -1,0 +1,12 @@
+# tensorflow-gpu==1.15
+# tensorflow-probability==0.8
+# matplotlib
+# tqdm
+# tensorflow-hub
+# ffmpeg
+# scipy
+# audiomentations
+# samplerate
+# soundfile
+# pydub
+# pandas
