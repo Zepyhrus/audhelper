@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sounddevice as sd
 
-from read import normalized_read
+from .read import normalized_read
 
 class DummyModel(object):
   def __init__(self, nl):
@@ -36,9 +36,16 @@ def __update__(frame, params):
     params['plotdata'] = np.roll(params['plotdata'], -shift, axis=0)
     params['plotdata'][-shift:, :] = data
   
-  preds = params['model'].infer(normalized_read(params['plotdata'][-sp:, 0], sp, sr, shuffle=False))
+  preds = params['model'].infer(
+    normalized_read(
+      filename=params['plotdata'][-params['samples']:, 0],
+      target_samples=params['samples'],
+      target_sample_rate=params['samplerate'],
+      shuffle=False
+    )
+  )
   params['resdata'] = np.roll(params['resdata'], -1, axis=0)
-  params['resdata'][-1, :] = preds * gamma + params['resdata'][-2, :] * (1 - gamma)
+  params['resdata'][-1, :] = preds * params['gamma'] + params['resdata'][-2, :] * (1 - params['gamma'])
   
   params['lines1'][0].set_ydata(params['plotdata'][:, 0])
   for i, line2 in enumerate(params['lines2']):
@@ -47,7 +54,7 @@ def __update__(frame, params):
   return params['lines1'] + params['lines2']
 
 def kws_monitor(model, interval, duration, samplerate, samples, num_labels, gamma):
-  length = int(duration * sr / 1000)
+  length = int(duration * samplerate / 1000)
   steps = int(duration / interval)
 
   # initialize core
@@ -56,7 +63,9 @@ def kws_monitor(model, interval, duration, samplerate, samples, num_labels, gamm
     'resdata': np.zeros((steps, num_labels)),
     'model': model,
     'queue': queue.Queue(),
-    'gamma': gamma
+    'gamma': gamma,
+    'samplerate': samplerate,
+    'samples': samples
   }
   # initialize figure
   fig, (ax1, ax2) = plt.subplots(2, 1)
