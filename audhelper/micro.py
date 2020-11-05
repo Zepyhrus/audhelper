@@ -73,7 +73,7 @@ def kws_monitor(model, project, interval, duration, samplerate, samples, words, 
   core['lines1'] = ax1.plot(core['plotdata'])
   core['lines2'] = ax2.plot(core['resdata'])
 
-  ax1.title.set_text(project)
+  ax1.title.set_text(f'{project}-{gamma:.2f}')
   ax1.axis((0, length-1, -1, 1))
   ax1.set_yticks([0])
   ax1.yaxis.grid(True)
