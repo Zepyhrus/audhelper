@@ -97,16 +97,7 @@ def kws_monitor(model, project, interval, duration, samplerate, samples, words, 
 
 
 if __name__ == "__main__":
-  prj = 'MOB' 
-  interval = 100.0
-  duration = 3000.0
-  sr = 16000
-  sp = 24000
-  gamma = 0.3
-  words = ['negative', 'jiuming', 'baojing']
-  model = DummyModel(len(words))
-
-  kws_monitor(model, prj, interval, duration, sr, sp, words, gamma)
+  pass
 
   
 
