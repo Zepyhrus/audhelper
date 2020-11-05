@@ -46,3 +46,5 @@ def normalized_read(filename, target_samples, target_sample_rate, shuffle):
   return normalized_samples
 
 
+if __name__ == "__main__":
+  pass

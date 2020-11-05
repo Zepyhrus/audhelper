@@ -1,4 +1,3 @@
-import argparse
 import queue
 import sys
 from functools import partial
@@ -70,6 +69,10 @@ def kws_monitor(model, interval, duration, samplerate, samples, num_labels, gamm
   # initialize figure
   fig, (ax1, ax2) = plt.subplots(2, 1)
 
+  core['lines1'] = ax1.plot(core['plotdata'])
+  core['lines2'] = ax2.plot(core['resdata'])
+
+  ax1.title.set_text('MOB')
   ax1.axis((0, length-1, -1, 1))
   ax1.set_yticks([0])
   ax1.yaxis.grid(True)
@@ -80,10 +83,6 @@ def kws_monitor(model, interval, duration, samplerate, samples, num_labels, gamm
   ax2.axis((0, steps-1, -0.05, 1.05))
 
   fig.tight_layout(pad=0)
-
-  core['lines1'] = ax1.plot(core['plotdata'])
-  core['lines2'] = ax2.plot(core['resdata'])
-
   
   # stream plot
   stream = sd.InputStream(
