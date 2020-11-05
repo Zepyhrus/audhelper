@@ -52,9 +52,10 @@ def __update__(frame, params):
 
   return params['lines1'] + params['lines2']
 
-def kws_monitor(model, interval, duration, samplerate, samples, num_labels, gamma):
+def kws_monitor(model, project, interval, duration, samplerate, samples, words, gamma):
   length = int(duration * samplerate / 1000)
   steps = int(duration / interval)
+  num_labels = len(words)
 
   # initialize core
   core = {
@@ -72,14 +73,14 @@ def kws_monitor(model, interval, duration, samplerate, samples, num_labels, gamm
   core['lines1'] = ax1.plot(core['plotdata'])
   core['lines2'] = ax2.plot(core['resdata'])
 
-  ax1.title.set_text('MOB')
+  ax1.title.set_text(project)
   ax1.axis((0, length-1, -1, 1))
   ax1.set_yticks([0])
   ax1.yaxis.grid(True)
   ax1.tick_params(bottom='off', top='off', labelbottom='off',
                   right='off', left='off', labelleft='off')
 
-  ax2.legend(['negative', 'jiuming', 'baojing'], loc='upper left')
+  ax2.legend(words, loc='upper left')
   ax2.axis((0, steps-1, -0.05, 1.05))
 
   fig.tight_layout(pad=0)
@@ -95,16 +96,17 @@ def kws_monitor(model, interval, duration, samplerate, samples, num_labels, gamm
 
 
 
-if __name__ == "__main__":  
+if __name__ == "__main__":
+  prj = 'MOB' 
   interval = 100.0
   duration = 3000.0
   sr = 16000
   sp = 24000
-  nl = 3
   gamma = 0.3
-  model = DummyModel(nl)
+  words = ['negative', 'jiuming', 'baojing']
+  model = DummyModel(len(words))
 
-  kws_monitor(model, interval, duration, sr, sp, nl, gamma)
+  kws_monitor(model, prj, interval, duration, sr, sp, words, gamma)
 
   
 
