@@ -1,9 +1,10 @@
 import soundfile as sf
+from samplerate import resample
 import numpy as np
 
 
 #@title Helper functions and classes
-def normalized_read(filename, target_samples=32000, target_sample_rate=16000, shuffle=False):
+def normalized_read(filename, target_samples, target_sample_rate, shuffle):
   """Reads and normalizes a wavfile."""
   if isinstance(filename, str):
     # _, data = wavfile.read(filename)
@@ -12,7 +13,7 @@ def normalized_read(filename, target_samples=32000, target_sample_rate=16000, sh
     data = filename
     sr = target_sample_rate
   else:
-    raise Exception('Wrong read format!')
+    raise Exception('Wrong read format! Only supporting filename/binary/numpy.ndarray.')
 
   if data.ndim > 1:
     data = data.mean(axis=1)
