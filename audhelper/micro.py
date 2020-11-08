@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sounddevice as sd
 
-from .read import normalized_read
-
 class DummyModel(object):
   def __init__(self, nl):
     self.nl = nl
@@ -35,14 +33,7 @@ def __update__(frame, params):
     params['plotdata'] = np.roll(params['plotdata'], -shift, axis=0)
     params['plotdata'][-shift:, :] = data
   
-  preds = params['model'].infer(
-    normalized_read(
-      filename=params['plotdata'][-params['samples']:, 0],
-      target_samples=params['samples'],
-      target_sample_rate=params['samplerate'],
-      shuffle=False
-    )
-  )
+  preds = params['model'].infer(params['plotdata'][-params['samples']:, 0])
   params['resdata'] = np.roll(params['resdata'], -1, axis=0)
   params['resdata'][-1, :] = preds * params['gamma'] + params['resdata'][-2, :] * (1 - params['gamma'])
   
@@ -52,10 +43,13 @@ def __update__(frame, params):
 
   return params['lines1'] + params['lines2']
 
-def kws_monitor(model, project, interval, duration, samplerate, samples, words, gamma):
+def kws_monitor(model, project, interval, duration, gamma):
+  samples = model.samples
+  samplerate = model.sample_rate
   length = int(duration * samplerate / 1000)
   steps = int(duration / interval)
-  num_labels = len(words)
+  num_labels = model.num_classes
+  words = model.wanted_words
 
   # initialize core
   core = {
