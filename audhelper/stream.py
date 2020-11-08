@@ -13,12 +13,7 @@ from matplotlib.animation import FuncAnimation
 import soundfile as sf
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-p', '--project', type=str, required=True)
-parser.add_argument('-g', '--gamma', type=float, default=0.3)
-parser.add_argument('-i', '--interval', type=int, default=100)
-parser.add_argument('-d', '--duration', type=int, default=3000)
-args = parser.parse_args()
+
 
 
 def __update__(frame, params):
