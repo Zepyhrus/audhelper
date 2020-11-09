@@ -55,7 +55,7 @@ def report(res, _c, _s):
   return alarms, cums
 
 
-def eval(t1, t2, interval):
+def alarm_eval(t1, t2, interval):
   cost_matrix = np.zeros((len(t1), len(t2)))
 
   for i in range(len(t1)):
