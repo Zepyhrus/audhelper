@@ -21,7 +21,7 @@ def stream_test(f, model, gamma, interval):
   return np.concatenate(res)
 
 
-def report(res, c, s):
+def report(res, _c, _s):
   """report alarms from result returned from stream_test"""
   reports = np.argmax(res, axis=1)
   scores = np.max(res, axis=1)
@@ -34,9 +34,9 @@ def report(res, c, s):
 
   for s, r in zip(scores, reports):
     if r != 0 and r == pre_r:
-      if cum == c:
+      if cum == _c:
         alarms.append(1)
-        cum = -s
+        cum = -_s
       else:
         alarms.append(0)
         cum += 1
