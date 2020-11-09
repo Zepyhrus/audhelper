@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.optimize import linear_sum_assignment as KM
 
 import soundfile as sf
 
@@ -26,30 +27,50 @@ def report(res, _c, _s):
   reports = np.argmax(res, axis=1)
   scores = np.max(res, axis=1)
 
-  pre_s = 0
   pre_r = 0
   cum = 0
   cums = []
   alarms = []
 
-  for s, r in zip(scores, reports):
+  for r in reports:
+    alarm = [0] * res.shape[1]
     if r != 0 and r == pre_r:
       if cum == _c:
-        alarms.append(1)
+        alarm[r] = 1
         cum = -_s
       else:
-        alarms.append(0)
+        alarm[0] = 1
         cum += 1
     else:
-      alarms.append(0)
+      alarm[0] = 1
       cum = max(0, cum-1)
 
-    pre_r, pre_s = r, s
+    alarms.append(alarm)
     cums.append(cum)
+    pre_r = r
+  
+  alarms = np.array(alarms)
+  cums = np.array(cums)
 
   return alarms, cums
 
 
+def eval(t1, t2, interval):
+  cost_matrix = np.zeros((len(t1), len(t2)))
+
+  for i in range(len(t1)):
+    for j in range(len(t2)):
+      diff = t1[i] - t2[j]
+      cost_matrix[i, j] = 1 / diff
+
+  gt_idx, dt_idx = KM(cost_matrix, maximize=True)
+
+  correct = 0
+  for _g, _d in zip(gt_idx, dt_idx):
+    if t1[_g] - t2[_d] <= interval:
+      correct += 1
+  
+  return correct
 
 
 
