@@ -3,6 +3,41 @@ from scipy.optimize import linear_sum_assignment as KM
 
 import soundfile as sf
 
+from .textgrid import TextGrid
+
+def textgrid_res(grid_file):
+  text = open(grid_file).read()
+
+  fid = TextGrid(text)
+  
+  for i, tier in enumerate(fid):
+    res = tier.simple_transcript
+
+
+  label_time = []
+  labels = []
+  for _st, _ed, _wd in res:
+    _st = float(_st)
+    _ed = float(_ed)
+
+    label_time.append(_st)
+
+    if '救命' in _wd:
+      labels.append([0, 1, 0, 0, 0])
+    elif '报警' in _wd:
+      labels.append([0, 0, 1, 0, 0])
+    elif '抢劫' in _wd:
+      labels.append([0, 0, 0, 1, 0])
+    elif '杀人' in _wd:
+      labels.append([0, 0, 0, 0, 1])
+    else:
+      labels.append([1, 0, 0, 0, 0])
+
+  labels = np.array(labels)
+  label_time = np.array(label_time)
+
+  return labels, label_time
+
 
 
 def stream_test(f, model, gamma, interval):
