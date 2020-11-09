@@ -40,7 +40,7 @@ def textgrid_res(grid_file):
 
 
 
-def stream_test(f, model, gamma, interval):
+def stream_test(f, model, interval):
   samples = model.samples
   samplerate = model.sample_rate
   overlap = samples - int(interval / 1000 * samplerate)
@@ -52,15 +52,22 @@ def stream_test(f, model, gamma, interval):
 
   for frame in frames:
     preds = model.infer(frame)
-    res.append(preds * gamma + res[-1] * (1 - gamma))
+    res.append(preds)
 
   return np.concatenate(res)
 
 
-def report(res, _c, _s):
+def report(res, _c, _s, gamma):
   """report alarms from result returned from stream_test"""
-  reports = np.argmax(res, axis=1)
-  scores = np.max(res, axis=1)
+  _res = res.copy()
+  # smooth
+  for _, _scores in enumerate(_res):
+    if _ == 0: continue
+
+    _res[_, :] = _res[_, :] * gamma + _res[_-1, :] * (1 - gamma)
+
+  reports = np.argmax(_res, axis=1)
+  scores = np.max(_res, axis=1)
 
   pre_r = 0
   cum = 0
@@ -68,7 +75,7 @@ def report(res, _c, _s):
   alarms = []
 
   for r in reports:
-    alarm = [0] * res.shape[1]
+    alarm = [0] * _res.shape[1]
     if r != 0 and r == pre_r:
       if cum == _c:
         alarm[r] = 1
