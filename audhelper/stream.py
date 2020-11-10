@@ -4,6 +4,7 @@ from scipy.optimize import linear_sum_assignment as KM
 import soundfile as sf
 
 from .textgrid import TextGrid
+from .read import ReadLargeWav
 
 def textgrid_res(grid_file):
   text = open(grid_file).read()
@@ -45,14 +46,27 @@ def stream_test(f, model, interval):
   samplerate = model.sample_rate
   overlap = samples - int(interval / 1000 * samplerate)
   steps = int(samples / samplerate * 1000 / interval)
+  duration = int(samples / samplerate * 1000)
 
-  frames = sf.blocks(f, blocksize=samples, overlap=overlap)
+  # frames = sf.blocks(f, blocksize=samples, overlap=overlap)
+  wav = ReadLargeWav(f)
 
   res = [np.zeros((1, model.num_classes))]
 
-  for frame in frames:
-    preds = model.infer(frame)
-    res.append(preds)
+  # for frame in frames:
+  #   preds = model.infer(frame)
+  #   res.append(preds)
+
+  while True:
+    binary_data = wav.read(duration, interval)
+    if binary_data is not None:
+      frame = np.frombuffer(binary_data, dtype=np.short) / 32768.
+      preds = model.infer(frame)
+
+      res.append(preds)
+    else:
+      break
+  wav.close()
 
   return np.concatenate(res)
 
@@ -109,7 +123,7 @@ def alarm_eval(t1, t2, interval):
 
   correct = 0
   for _g, _d in zip(gt_idx, dt_idx):
-    if t1[_g] - t2[_d] <= interval:
+    if abs(t1[_g] - t2[_d]) <= interval:
       correct += 1
   
   return correct
