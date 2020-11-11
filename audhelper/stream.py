@@ -116,7 +116,7 @@ def alarm_eval(t1, t2, interval):
 
   for i in range(len(t1)):
     for j in range(len(t2)):
-      diff = t1[i] - t2[j]
+      diff = abs(t1[i] - t2[j])
       cost_matrix[i, j] = 1 / diff
 
   gt_idx, dt_idx = KM(cost_matrix, maximize=True)
