@@ -41,7 +41,7 @@ def textgrid_res(grid_file):
 
 
 
-def stream_test(f, model, interval):
+def stream_test(f, model, interval=100):
   samples = model.samples
   samplerate = model.sample_rate
   overlap = samples - int(interval / 1000 * samplerate)
