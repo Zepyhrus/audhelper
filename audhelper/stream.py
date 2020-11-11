@@ -130,7 +130,5 @@ def alarm_eval(t1, t2, interval):
 
 
 
-
-
 if __name__ == "__main__":
   pass
