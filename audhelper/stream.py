@@ -95,7 +95,7 @@ def report(res, _c, _s, gamma):
 
   for r in reports:
     alarm = [0] * _res.shape[1]
-    if r != 0 and r == pre_r:
+    if r != 0 and (r == pre_r or _c == 0):
       if cum == _c:
         alarm[r] = 1
         cum = -_s
