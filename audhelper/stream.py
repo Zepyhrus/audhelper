@@ -43,7 +43,6 @@ def textgrid_res(grid_file):
   return labels, label_st, label_ed
 
 
-
 def stream_test(f, model, interval=100):
   samples = model.samples
   samplerate = model.sample_rate

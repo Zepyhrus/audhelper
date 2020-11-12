@@ -13,8 +13,6 @@ class DummyModel(object):
 
   def infer(self, samples):
     return np.random.randn(self.nl) / 2 + 0.5
-
-
 # prepare function
 def __callback__(indata, frames, time, status, params):
   """This is called (from a separate thread) for each audio block."""
@@ -36,6 +34,13 @@ def __update__(frame, params):
   preds = params['model'].infer(params['plotdata'][-params['samples']:, 0])
   params['resdata'] = np.roll(params['resdata'], -1, axis=0)
   params['resdata'][-1, :] = preds * params['gamma'] + params['resdata'][-2, :] * (1 - params['gamma'])
+
+  if params['dst'] is not None:
+    if np.argmax(params['resdata'][-2, :]) != 0:
+      name = date.today().strftime('%Y-%M-%d') +\
+        '_' + time.strftime('%H-%M-%S', time.localtime()) + '.wav'
+      
+      sf.write(join(params['dst'], name), params['plotdata'][:, 0], model.sample_rate)
   
   params['lines1'][0].set_ydata(params['plotdata'][:, 0])
   for i, line2 in enumerate(params['lines2']):
@@ -52,6 +57,9 @@ def kws_monitor(model, project, interval, duration, gamma, dst=None):
   words = model.wanted_words
 
   # initialize core
+  if dst is not None:
+    os.makedirs(dst, exist_ok=True)
+  
   core = {
     'plotdata': np.zeros((length, 1)),
     'resdata': np.zeros((steps, num_labels)),
@@ -59,7 +67,8 @@ def kws_monitor(model, project, interval, duration, gamma, dst=None):
     'queue': queue.Queue(),
     'gamma': gamma,
     'samplerate': samplerate,
-    'samples': samples
+    'samples': samples,
+    'dst': dst
   }
   # initialize figure
   fig, (ax1, ax2) = plt.subplots(2, 1)
@@ -87,8 +96,6 @@ def kws_monitor(model, project, interval, duration, gamma, dst=None):
 
   with stream:
     plt.show()
-
-
 
 if __name__ == "__main__":
   pass
