@@ -43,7 +43,7 @@ def __update__(frame, params):
 
   return params['lines1'] + params['lines2']
 
-def kws_monitor(model, project, interval, duration, gamma):
+def kws_monitor(model, project, interval, duration, gamma, dst=None):
   samples = model.samples
   samplerate = model.sample_rate
   length = int(duration * samplerate / 1000)

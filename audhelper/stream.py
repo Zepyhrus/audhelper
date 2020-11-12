@@ -15,13 +15,15 @@ def textgrid_res(grid_file):
     res = tier.simple_transcript
 
 
-  label_time = []
+  label_st = []
+  label_ed = []
   labels = []
   for _st, _ed, _wd in res:
     _st = float(_st)
     _ed = float(_ed)
 
-    label_time.append(_st)
+    label_st.append(_st)
+    label_ed.append(_ed)
 
     if '救命' in _wd:
       labels.append([0, 1, 0, 0, 0])
@@ -35,9 +37,10 @@ def textgrid_res(grid_file):
       labels.append([1, 0, 0, 0, 0])
 
   labels = np.array(labels)
-  label_time = np.array(label_time)
+  label_st = np.array(label_st)
+  label_ed = np.array(label_ed)
 
-  return labels, label_time
+  return labels, label_st, label_ed
 
 
 
@@ -53,10 +56,7 @@ def stream_test(f, model, interval=100):
 
   res = [np.zeros((1, model.num_classes))]
 
-  # for frame in frames:
-  #   preds = model.infer(frame)
-  #   res.append(preds)
-
+  cnt = 0
   while True:
     binary_data = wav.read(duration, interval)
     if binary_data is not None:
@@ -65,7 +65,12 @@ def stream_test(f, model, interval=100):
 
       res.append(preds)
     else:
+      print(f'total {cnt * interval / 1000} s finished!')
       break
+    
+    cnt += 1
+    if cnt % int(120 * 1000 / interval) == 0: print(f'{cnt * interval / 1000} s finished!')
+
   wav.close()
 
   return np.concatenate(res)

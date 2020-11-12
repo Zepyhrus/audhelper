@@ -43,7 +43,7 @@ def normalized_read(filename, target_samples, target_sample_rate, shuffle):
       data = np.pad(data, (pad_left, pad_right), 'constant')
 
   samples_99_percentile = np.percentile(np.abs(data), 99.9)
-  normalized_samples = data / (samples_99_percentile + 1e-12)
+  normalized_samples = data / (samples_99_percentile + 1e-6)
   normalized_samples = np.clip(normalized_samples, -1, 1)
 
   return normalized_samples
