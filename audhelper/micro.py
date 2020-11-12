@@ -1,3 +1,6 @@
+import os
+from os.path import join, split
+
 import queue
 import sys
 from functools import partial
@@ -6,6 +9,10 @@ from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
 import numpy as np
 import sounddevice as sd
+import soundfile as sf
+
+import time
+from datetime import date
 
 class DummyModel(object):
   def __init__(self, nl):
@@ -37,10 +44,9 @@ def __update__(frame, params):
 
   if params['dst'] is not None:
     if np.argmax(params['resdata'][-2, :]) != 0:
-      name = date.today().strftime('%Y-%M-%d') +\
-        '_' + time.strftime('%H-%M-%S', time.localtime()) + '.wav'
+      name = date.today().strftime('%Y-%m-%d') + '_' + time.strftime('%H-%M-%S', time.localtime()) + '.wav'
       
-      sf.write(join(params['dst'], name), params['plotdata'][:, 0], model.sample_rate)
+      sf.write(join(params['dst'], name), params['plotdata'][:, 0], params['model'].sample_rate)
   
   params['lines1'][0].set_ydata(params['plotdata'][:, 0])
   for i, line2 in enumerate(params['lines2']):
