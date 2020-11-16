@@ -7,6 +7,10 @@ import numpy as np
 
 from .read import normalized_read
 
+def checkdata(datasets):
+  for _i in datasets:
+    for _d in _i['train']:
+      assert glob(join(_d, '*.wav')), f'Empty dir {_d}!'
 
 class AudDataset(object):
   def __init__(self, dirs, batch_size, samples, sample_rate, training):
