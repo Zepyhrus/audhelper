@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 
-from .read import normalized_read
+from .read import nread
 
 def checkdata(datasets):
   for _i in datasets:
@@ -13,7 +13,7 @@ def checkdata(datasets):
       assert glob(join(_d, '*.wav')), f'Empty dir {_d}!'
 
 class AudDataset(object):
-  def __init__(self, dirs, batch_size, samples, sample_rate, training):
+  def __init__(self, dirs, batch_size, samples, sample_rate, training, augs=None):
     """
     prepare data, we are not suppose to change training state
     """
@@ -36,6 +36,7 @@ class AudDataset(object):
     self.__sample_rate = sample_rate
     self.__training = training
     self.__steps = (len(self.__data) - 1) // self.__batch_size + 1
+    self.__augs = augs
 
   def __len__(self):
     return self.__steps
@@ -58,11 +59,15 @@ class AudDataset(object):
       self.__start += 1
 
       cnt = len(batch_data)
-      auds = np.zeros((cnt, self.__samples))
+      auds = np.empty((cnt, self.__samples))
       labels = []
 
       for i, (label, audio) in enumerate(batch_data):
-        auds[i, :] = normalized_read(audio, self.__samples, self.__sample_rate, self.__training)
+        _aud = nread(audio, self.__samples, self.__sample_rate, self.__training, self.__augs)
+        if self.__augs and random.random() < 0.1:
+          _aud = _aud[::-1]
+          label = 0
+        auds[i, :] = _aud
         labels.append(label)
       
       return auds, labels

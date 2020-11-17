@@ -6,11 +6,6 @@ from samplerate import resample
 import numpy as np
 from scipy.io import wavfile
 
-# augmentation
-# normalized_read: around 0.5046 s/1000 steps;
-# nread: 0.1522
-# AudDatasets: around 1159 s for reading 1592226 datasets, 12439 batches, 0.7279 s/1000 steps;
-# train: around 200 min/12000 s for 51460 batches, 6586880 steps, 1.8218 s/1000 steps;
 from audiomentations import (
   Compose,
   Gain,                   #  0.1701   0.1086
@@ -117,7 +112,7 @@ def nread(data, samples, sample_rate, shuffle, aug=None):
   _size = aud.shape[0]
   # crop
   if _size > samples:
-    idx = np.random.randint(_size - samples) if shuffle else ( - samples) // 2
+    idx = np.random.randint(_size - samples) if shuffle else (_size - samples) // 2
     aud = aud[idx:(idx+samples)]
   
   # pad
