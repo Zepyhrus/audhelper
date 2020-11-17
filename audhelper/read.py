@@ -92,8 +92,7 @@ def compose(sounds_path):
 def nread(data, samples, sample_rate, shuffle, aug=None):
   # a faster implementation of normalize read with augmentation
   if isinstance(data, str):
-    sr, raw = wavfile.read(data)
-    aud = raw / 32768
+    aud, sr = wavfile.read(data)
   elif isinstance(data, np.ndarray):
     aud = data.copy()
     sr = sample_rate
