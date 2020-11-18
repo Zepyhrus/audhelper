@@ -81,7 +81,7 @@ def compose(sounds_path):
     TimeMask(p=_p, max_band_part=0.25),
     AddGaussianSNR(p=_p),
     ClippingDistortion(p=_p, max_percentile_threshold=20),
-    AddBackgroundNoise(sounds_path='data/background1', p=_p),
+    AddBackgroundNoise(sounds_path=sounds_path, p=_p),
     TimeStretch(p=_p/10),
     PitchShift(p=_p/30),
   ]
