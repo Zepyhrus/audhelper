@@ -26,15 +26,15 @@ def textgrid_res(grid_file):
     label_ed.append(_ed)
 
     if '救命' in _wd:
-      labels.append([0, 1, 0, 0, 0])
+      labels.append(1)
     elif '报警' in _wd:
-      labels.append([0, 0, 1, 0, 0])
+      labels.append(2)
     elif '抢劫' in _wd:
-      labels.append([0, 0, 0, 1, 0])
+      labels.append(3)
     elif '杀人' in _wd:
-      labels.append([0, 0, 0, 0, 1])
+      labels.append(4)
     else:
-      labels.append([1, 0, 0, 0, 0])
+      labels.append(0)
 
   labels = np.array(labels)
   label_st = np.array(label_st)
