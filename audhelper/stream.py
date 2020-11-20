@@ -133,6 +133,43 @@ def alarm_eval(t1, t2, interval):
   return correct
 
 
+def report_from_res(res_file, grid_file, interval=500, method='f1', word_index=1):
+  # load labels and file
+  labels, st, et = textgrid_res(grid_file)
+
+  res = np.genfromtxt(res_file, delimiter=',')
+  res = np.concatenate((res[[0], :], res[1::int(interval/100), ])) # interval for 200 ms
+  best = 5
+  _s = min(20, int(2000 / interval))
+
+  for _g in np.arange(1, 11) / 10:
+    for _c in range(11):
+      alarms, _ = report(res, _c, _s, _g)
+      
+      alarms = alarms[:, word_index]
+      time_alarms = np.arange(alarms.shape[0]) * interval / 1000
+
+      t1 = st[labels == 1]
+      t2 = time_alarms[alarms == 1]
+
+      correct = alarm_eval(t1, t2, 2)
+      recall = correct / (len(t1) + 1e-12) * 100
+      precis = correct / (len(t2) + 1e-12) * 100
+      f1 = 2 * precis * recall / (precis + recall + 1e-12)
+
+      if method == 'f1':
+        target = f1
+      elif method == 'recall':
+        target = recall
+      elif method == 'precision':
+        target = precis
+      else:
+        raise Exception(f'Wrong method {method} must be in f1/recall/precision!')
+
+      if target > best - 5:
+        if target > best:
+          best = target
+        print(f'word {word_index} on {method} - recall: {recall:.2f}, precision: {precis:.2f}, f1: {f1:.2f} @ {_c}, {_g}, {len(t1)} labels')
 
 if __name__ == "__main__":
   pass
