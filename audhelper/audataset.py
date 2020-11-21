@@ -5,12 +5,40 @@ import random
 import numpy as np
 
 
-from .read import nread
+from .read import nread, compose
 
 def checkdata(datasets):
   for _i in datasets:
     for _d in _i['train']:
       assert glob(join(_d, '*.wav')), f'Empty dir {_d}!'
+
+  
+def datasets_from_cfg(cfg_model, cfg_dataset):
+  checkdata(cfg_dataset)
+
+  train_dirs = []
+  val_dirs = []
+
+  bs = cfg_model['batch_size']
+  sr = cfg_model['sample_rate']
+  sp = cfg_model['samples']
+
+  for _dataset in cfg_dataset:
+    if isinstance(_dataset['train'], list):
+      train_dirs += [(_dataset['word'], _) for _ in _dataset['train']]
+    
+    if isinstance(_dataset['val'], list):
+      val_dirs += [(_dataset['word'], _) for _ in _dataset['val']]
+
+  print(train_dirs)
+  print(val_dirs)
+
+  augs = compose(cfg_model['augmentation']) if 'augmentation' in cfg_model else None
+
+  _train = AudDataset(train_dirs, batch_size=bs, samples=sp, sample_rate=sr, training=True, augs=augs)
+  _val = AudDataset(val_dirs, batch_size=bs, samples=sp, sample_rate=sr, training=False, augs=None)
+
+  return _train, _val
 
 class AudDataset(object):
   def __init__(self, dirs, batch_size, samples, sample_rate, training, augs=None):
