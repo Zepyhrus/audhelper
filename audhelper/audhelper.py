@@ -242,6 +242,8 @@ class BaseKWS(object):
       total_accuracy += (test_accuracy * len(test_labels))
     total_accuracy /= test_dataset.size
 
+    return total_accuracy
+
   def save_module(self, save_dir):
     raise NotImplementedError
 
