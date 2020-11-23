@@ -169,4 +169,14 @@ class ReadLargeWav():
 
 
 if __name__ == "__main__":
-  pass
+  aug = compose('/home/ubuntu/Datasets/NLP/px/background1')
+
+  import datetime
+
+  st = datetime.datetime.now()
+  for _ in range(1000):
+    aud = nread('demo.wav', 24000, 16000, False, aug=aug)
+
+  ed = datetime.datetime.now()
+
+  print(ed - st)
