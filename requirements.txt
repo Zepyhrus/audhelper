@@ -5,7 +5,7 @@
 # tensorflow-hub
 # ffmpeg
 # scipy
-# audiomentations
+audiomentations
 # samplerate
 # soundfile
 # pydub
