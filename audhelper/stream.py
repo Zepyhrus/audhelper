@@ -169,7 +169,9 @@ def report_from_res(res_file, grid_file, interval=500, method='f1', word_index=1
       if target > best - 5:
         if target > best:
           best = target
-        print(f'word {word_index} on {method} - recall: {recall:.2f}, precision: {precis:.2f}, f1: {f1:.2f} @ {_c}, {_g}, {len(t1)} labels, {len(t2) - correct} false alarms.')
+        print(f'word {word_index} on {method} - recall: {recall:.2f}, \
+          precision: {precis:.2f}, f1: {f1:.2f} @ {_c}, {_g}, \
+          {len(t1)} labels, {len(t2) - correct} false alarms.')
 
 if __name__ == "__main__":
   pass
