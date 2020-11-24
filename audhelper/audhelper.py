@@ -240,7 +240,7 @@ class BaseKWS(object):
         self.__accuracy, feed_dict={self.__audios: test_auds, self.__labels: test_labels}
       )
       total_accuracy += (test_accuracy * len(test_labels))
-    total_accuracy /= test_dataset.size
+    total_accuracy /= (test_dataset.size + _EPSILON)
 
     return total_accuracy
 
