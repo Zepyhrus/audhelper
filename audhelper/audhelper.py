@@ -125,7 +125,13 @@ class BaseKWS(object):
 
   def initialize(self):
     with self.graph.as_default():
-      self.__init_loss_fun()
+      # initialize self.loss
+      if self.loss_type == 'Focal':
+        self.loss = sparse_softmax_categorical_focal_loss
+      elif self.loss_type == 'CE':
+        self.loss = tf.nn.sparse_softmax_cross_entropy_with_logits
+      else:
+        raise Exception('Unsupported loss type: %s' % self.loss_type)
 
       self.__audios = tf.placeholder(tf.float32, [None, self.samples])
       self.__labels = tf.placeholder(tf.int64, [None])
@@ -163,15 +169,6 @@ class BaseKWS(object):
         num_params = sum(map(lambda t: np.prod(tf.shape(t.value()).eval()), params))
         print('Training parameter numbers: %d' % num_params)
     self.initailized = True
-
-  def __init_loss_fun(self):
-    # initialize self.loss
-    if self.loss_type == 'Focal':
-      self.loss = sparse_softmax_categorical_focal_loss
-    elif self.loss_type == 'CE':
-      self.loss = tf.nn.sparse_softmax_cross_entropy_with_logits
-    else:
-      raise Exception('Unsupported loss type: %s' % self.loss_type)
 
   def infer(self, audio):
     assert self.initailized, 'Model not initailized!'
