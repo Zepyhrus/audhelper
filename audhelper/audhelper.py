@@ -105,8 +105,8 @@ def sparse_softmax_categorical_focal_loss(
 class BaseKWS(object):
   def __init__(self, cfg, training=False):
     self.initailized          = False
-    self.summary_dir          = cfg['summary_dir']
-    self.training_dir         = cfg['training_dir']
+    self.summary_dir          = cfg['summary_dir'] if 'summary_dir' in cfg else None
+    self.training_dir         = cfg['training_dir'] if 'training_dir' in cfg else None
     self.wanted_words         = ['_unknown_'] + cfg['wanted_words']
     self.num_classes          = len(self.wanted_words)
     self.samples              = cfg['samples']
@@ -183,6 +183,21 @@ class BaseKWS(object):
     ).reshape((-1, self.samples))
 
     return self.sess.run(self.__preds, feed_dict={self.__audios: aud})
+
+  def pred(self, audios):
+    assert self.initailized, 'Model not initialized!'
+    assert len(audios) <= self.batch_size, f'Input length {len(audios)} is larger than batch size{self.batch_size}'    
+
+    auds = np.empty((len(audios), self.samples), dtype=np.float32)
+
+    for i, audio in enumerate(audios):
+      auds[i] = nread(
+        data=audio,
+        samples=self.samples, sample_rate=self.sample_rate,
+        shuffle=False, aug=None
+      )
+
+    return self.sess.run(self.__preds, feed_dict={self.__audios: auds})
 
   def train(self, train_dataset, val_dataset=None):
     assert self.initailized, 'Model not initailized!'
