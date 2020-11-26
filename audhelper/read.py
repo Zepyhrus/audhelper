@@ -117,31 +117,25 @@ class ReadLargeWav():
     self.open(file_name)
   
   def open(self, file_name):
-    try:
-      self.f = wave.open(file_name, "rb")
-      params = self.f.getparams()
+    self.f = wave.open(file_name, "rb")
+    params = self.f.getparams()
 
-      self.channels, self.sampwidth, self.framerate, self.nframes = params[:4]
-      self.open_flag   = True
-      self.first_read  = True
-      self.last_frames = None
-      self.duration    = self.nframes / self.channels / self.framerate
+    self.channels, self.sampwidth, self.framerate, self.nframes = params[:4]
+    self.first_read  = True
+    self.last_frames = None
+    self.duration    = self.nframes / self.channels / self.framerate
 
-      return True
-    except Exception as err:
-      print("open " + file_name + " fail")
-      self.open_flag = False
-
-      return False
   
   #unit ms
   def read(self,time_duration = 1500,over_slide_time = 500):
-    if(self.first_read):
-      need_frames_count = time_duration * self.framerate / 1000
+    if self.first_read:
+      need_frames_count = int(time_duration * self.framerate / 1000)
       print(need_frames_count)
+
       frames  = self.f.readframes(int(need_frames_count))
       print(len(frames))
-      if(len(frames) != int(need_frames_count *self.sampwidth) ):
+
+      if len(frames) != int(need_frames_count *self.sampwidth):
         print ("read frames:"+str(len(frames)) + " " + str(need_frames_count *self.sampwidth))
 
         return None
@@ -155,7 +149,7 @@ class ReadLargeWav():
       need_frames_count = over_slide_time * self.framerate / 1000
       frames = self.f.readframes(int(need_frames_count))
 
-      if(len(frames) != int(need_frames_count *self.sampwidth) ):           
+      if len(frames) != int(need_frames_count *self.sampwidth):
         return None
 
       need_frames = self.last_frames + frames
