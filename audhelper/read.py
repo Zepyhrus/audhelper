@@ -1,4 +1,5 @@
 import os
+import math
 import wave
 
 import soundfile as sf
@@ -112,6 +113,9 @@ def awrite(audio, sample_rate, aud, method='sci'):
     raise Exception('Wrong audio read method!')
 
 
+
+# ReadLargeWav          8.1966 s/100 epochs
+# ReadWav               6.8874 s/100 epochs
 class ReadLargeWav():
   def __init__(self, file_name):
     self.open(file_name)
@@ -127,7 +131,7 @@ class ReadLargeWav():
 
     print('Reading %s with %d...' % (file_name, self.duration))
   
-  def read(self,time_duration = 1500, over_slide_time = 500):
+  def read(self, time_duration = 1500, over_slide_time = 500):
     # unit ms
     if self.first_read:
       need_frames_count = int(time_duration * self.framerate / 1000)
@@ -162,6 +166,36 @@ class ReadLargeWav():
   def close(self):
     self.f.close()
 
+
+class StreamWav:
+  def __init__(self, file_name, window=1500, stride=500):
+    self.f = wave.open(file_name, 'rb')
+    params = self.f.getparams()
+
+    self.channels, self.sampwidth, self.framerate, self.nframes = params[:4]
+    self.duration = self.nframes / self.channels / self.framerate
+    self.window_frames = int(window * self.framerate / 1000)
+    self.stride_frames = int(stride * self.framerate / 1000)
+
+    assert self.nframes >= self.window_frames, 'Reading file too small or window too large, use other method!'
+
+    self.overlap_frames = self.window_frames - self.stride_frames
+    self.total_reads = math.floor((self.nframes - self.overlap_frames) / self.stride_frames)
+    self.curr_read = 0
+    self.last_frames = self.f.readframes(self.overlap_frames)
+
+    print('Reading %s with %.2f s...' % (file_name, self.duration/1000))
+
+  def read(self):
+    if self.curr_read == self.total_reads: return self.curr_read, None  # indicating end of file
+
+    read_frames = self.f.readframes(self.stride_frames)
+    frames = self.last_frames + read_frames
+
+    self.last_frames = frames[-self.overlap_frames*self.sampwidth:]
+    self.curr_read += 1
+
+    return self.curr_read, frames
 
 if __name__ == "__main__":
   aug = compose('/home/ubuntu/Datasets/NLP/px/background1')
