@@ -124,7 +124,6 @@ class ReadLargeWav():
     self.first_read   = True
     self.last_frames  = None
     self.duration     = self.nframes / self.channels / self.framerate
-    self.curr_read    = 0
 
     print('Reading %s with %d...' % (file_name, self.duration))
   
@@ -138,13 +137,12 @@ class ReadLargeWav():
       if len(frames) != int(need_frames_count * self.sampwidth):
         print("read frames: " + str(len(frames)) + " " + str(need_frames_count * self.sampwidth))
 
-        return None, None
+        return None
 
       self.last_frames = frames            
       self.first_read  = False
-      self.curr_read += 1
 
-      return frames, self.curr_read
+      return frames
     else:
       need_frames_count = over_slide_time * self.framerate / 1000
       frames = self.f.readframes(int(need_frames_count))
@@ -152,15 +150,14 @@ class ReadLargeWav():
       if len(frames) != int(need_frames_count * self.sampwidth):
         self.close()
 
-        return None, None
+        return None
 
       need_frames = self.last_frames + frames
       need_bytes_count = int(time_duration * self.framerate * self.sampwidth /1000)
       
       self.last_frames = need_frames[len(need_frames)-need_bytes_count:]
-      self.curr_read += 1
-
-      return self.last_frames, self.curr_read
+      
+      return self.last_frames
 
   def close(self):
     self.f.close()
