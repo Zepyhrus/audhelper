@@ -184,7 +184,7 @@ class StreamWav:
     self.curr_read = 0
     self.last_frames = self.f.readframes(self.overlap_frames)
 
-    print('Reading %s with %.2f s...' % (file_name, self.duration/1000))
+    print('Reading %s with %.2f s...' % (file_name, self.duration))
 
   def read(self):
     if self.curr_read == self.total_reads: return self.curr_read, None  # indicating end of file
