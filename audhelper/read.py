@@ -200,6 +200,7 @@ class StreamWav:
 
     return self.curr_read-1, frames
 
+
 if __name__ == "__main__":
   aug = compose('/home/ubuntu/Datasets/NLP/px/background1')
 

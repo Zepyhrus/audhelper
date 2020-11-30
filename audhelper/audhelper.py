@@ -195,10 +195,11 @@ class BaseKWS(object):
     # assume the audios are already normalized!
     return self.__infer(audios)
 
-
-
   def pred(self, audios):
-    assert self.initailized, 'Model not initialized!'
+    if not self.initailized:
+      logging.warning('Model not initailized!')
+      self.initialize()
+
     assert len(audios) <= self.batch_size, f'Input length {len(audios)} is larger than batch size{self.batch_size}'    
 
     auds = np.empty((len(audios), self.samples), dtype=np.float32)
