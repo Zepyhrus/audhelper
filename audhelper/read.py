@@ -187,7 +187,10 @@ class StreamWav:
     print('Reading %s with %.2f s...' % (file_name, self.duration))
 
   def read(self):
-    if self.curr_read == self.total_reads: return self.curr_read, None  # indicating end of file
+    if self.curr_read == self.total_reads:
+      self.f.close()  # close the file
+
+      return self.curr_read, None  # indicating end of file
 
     read_frames = self.f.readframes(self.stride_frames)
     frames = self.last_frames + read_frames
@@ -195,7 +198,7 @@ class StreamWav:
     self.last_frames = frames[-self.overlap_frames*self.sampwidth:]
     self.curr_read += 1
 
-    return self.curr_read, frames
+    return self.curr_read-1, frames
 
 if __name__ == "__main__":
   aug = compose('/home/ubuntu/Datasets/NLP/px/background1')

@@ -8,6 +8,7 @@ from os.path import join
 from itertools import chain
 
 import numpy as np
+import logging
 
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -169,9 +170,14 @@ class BaseKWS(object):
         num_params = sum(map(lambda t: np.prod(tf.shape(t.value()).eval()), params))
         print('Training parameter numbers: %d' % num_params)
     self.initailized = True
+  
+  def __infer(self, auds):
+    return self.sess.run(self.__preds, feed_dict={self.__audios: auds})
 
   def infer(self, audio):
-    assert self.initailized, 'Model not initailized!'
+    if not self.initailized:
+      logging.warning('Model not initailized!')
+      self.initialize()
 
     aud = nread(
       data=audio,
@@ -179,7 +185,17 @@ class BaseKWS(object):
       shuffle=False, aug=None
     ).reshape((-1, self.samples))
 
-    return self.sess.run(self.__preds, feed_dict={self.__audios: aud})
+    return self.__infer(aud)
+  
+  def batch_infer(self, audios):
+    if not self.initailized:
+      logging.warning('Model not initailized!')
+      self.initialize()
+    
+    # assume the audios are already normalized!
+    return self.__infer(audios)
+
+
 
   def pred(self, audios):
     assert self.initailized, 'Model not initialized!'
