@@ -3,6 +3,10 @@ __version__ = '0.2.1'
 """
 
 """
+import logging
+_f = '%(asctime)s: %(message)s'
+logging.basicConfig(format=_f, level=logging.INFO, datefmt='%H:%M:%S')
+  
 
 from os.path import join
 from itertools import chain
@@ -258,7 +262,19 @@ class BaseKWS(object):
             print('Validation %d-%d: %.2f-%.4f' % (epoch, curr_step, total_accuracy*100, total_loss))
     save_dir = join(self.training_dir, 'last')
     self.save_module(save_dir)
-      
+
+  def batch_train(self, audios, labels, lr):
+    train_summary, train_accuracy, train_loss, curr_step, _ = self.sess.run(
+      [self.__summaries, self.__accuracy, self.__loss, self.__global_step, self.__train_step],
+      feed_dict={
+        self.__audios: audios,
+        self.__labels: labels,
+        self.__lr: lr
+      }
+    )
+    self.__train_writer.add_summary(train_summary, curr_step)
+    logging.info('%d-%d: %.2f-%.4f' % (epoch, curr_step, train_accuracy*100, train_loss))
+
   def test(self, test_dataset):
     assert self.initailized, 'Model not initailized!'
 
