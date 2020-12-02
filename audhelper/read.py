@@ -2,13 +2,14 @@ import os
 import math
 import wave
 
+import random
+
 import soundfile as sf
 from samplerate import resample
 import numpy as np
 from scipy.io import wavfile
 
 from audiomentations import (
-  Compose,
   Gain,                   #  0.1701   0.1086
   AddGaussianNoise,       #  1.0177   0.7528
   TimeStretch,            # 10.8556   8.4630
@@ -22,13 +23,33 @@ from audiomentations import (
   AddBackgroundNoise,     #  1.7820   1.7376
   AddShortNoises          #  1.6541   1.6303
 )
-
-
+from audiomentations.core.utils import calculate_rms, calculate_desired_noise_rms
 
 class MyGain(Gain):
   def apply(self, samples, sample_rate):
     return np.clip(samples * self.parameters["amplitude_ratio"], -1, 1)
 
+
+class MyCompose:
+  def __init__(self, transforms, p=1.0, max_augs=3):
+    assert len(transforms), "No transforms provided"
+    self.transforms = transforms
+    self.p = p
+    self.max_augs = max_augs
+    
+    name_list = []
+    for transform in transforms:
+      name_list.append(type(transform).__name__)
+    self.__name__ = '_'.join(name_list)
+
+  def __call__(self, samples, sample_rate):
+    if random.random() < self.p:
+      picked_trans = random.sample(self.transforms, random.randint(1, min(len(self.transforms), self.max_augs)))
+      
+      for trans in picked_trans:
+        samples = trans(samples, sample_rate)
+
+    return samples
 
 def compose(sounds_path):
   _p = 0.2
@@ -48,6 +69,22 @@ def compose(sounds_path):
   
   return Compose(transforms, p=0.4, shuffle=True)
 
+def compose_without_noise():
+  _p = 0.25
+
+  transforms = [
+    MyGain(p=_p),
+    AddGaussianNoise(p=_p),
+    Shift(p=_p, min_fraction=-0.25, max_fraction=0.25),
+    FrequencyMask(p=_p),
+    TimeMask(p=_p, max_band_part=0.25),
+    AddGaussianSNR(p=_p),
+    ClippingDistortion(p=_p, max_percentile_threshold=20),
+    TimeStretch(p=_p/10),
+    PitchShift(p=_p/25),
+  ]
+  
+  return MyCompose(transforms, p=0.5, max_augs=3)
 
 def nread(data, samples, sample_rate, shuffle, aug=None):
   # a faster implementation of normalize read with augmentation
@@ -63,7 +100,8 @@ def nread(data, samples, sample_rate, shuffle, aug=None):
   if aud.ndim > 1: aud = aud.mean(axis=1)
 
   # augmentation
-  if aug: aud = aug(aud, sr)
+  if aug:
+    aud = aug(aud, sr)
 
   # resample
   if sr != sample_rate: aud = resample(aud, sample_rate/sr)
@@ -86,6 +124,25 @@ def nread(data, samples, sample_rate, shuffle, aug=None):
   aud /= normalize_factor
 
   return aud
+
+
+def add_background_noise(aud, noise_aud, min_snr_in_db=3, max_snr_in_db=30):
+  snr_in_db = random.uniform(min_snr_in_db, max_snr_in_db)
+  # snr_in_db = np.exp(random.uniform(np.log(min_snr_in_db), np.log(max_snr_in_db)))
+
+  clean_rms = calculate_rms(aud)
+  noise_rms = calculate_rms(noise_aud) + 1e-6
+  desired_noise_rms = calculate_desired_noise_rms(clean_rms, snr_in_db)
+
+  noise_aud = noise_aud * desired_noise_rms / noise_rms
+  _aud = aud + noise_aud
+
+  # normalize
+  normalize_factor = max(1e-6, np.abs(_aud).max())
+  _aud /= normalize_factor
+
+  return _aud
+
 
 
 def aread(audio, method='sf', aug=None):
