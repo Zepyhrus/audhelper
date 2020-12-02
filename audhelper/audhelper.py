@@ -261,7 +261,7 @@ class BaseKWS(object):
       }
     )
     self.__train_writer.add_summary(train_summary, curr_step)
-    logging.info('%d, learning_rate: %.4f: %.2f-%.4f' % (curr_step, lr, train_accuracy*100, train_loss))
+    logging.info('%d, learning_rate: %.5f: %.2f-%.4f' % (curr_step, lr, train_accuracy*100, train_loss))
 
   def test(self, test_dataset, curr_step=0):
     assert self.initailized, 'Model not initailized!'
