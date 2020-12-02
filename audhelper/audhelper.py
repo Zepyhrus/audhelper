@@ -6,7 +6,8 @@ __version__ = '0.2.1'
 import logging
 _f = '%(asctime)s: %(message)s'
 logging.basicConfig(format=_f, level=logging.INFO, datefmt='%H:%M:%S')
-  
+
+import datetime
 
 from os.path import join
 from itertools import chain
@@ -273,7 +274,7 @@ class BaseKWS(object):
       }
     )
     self.__train_writer.add_summary(train_summary, curr_step)
-    logging.info('%d-%d: %.2f-%.4f' % (epoch, curr_step, train_accuracy*100, train_loss))
+    logging.info('%d: %.2f-%.4f' % (curr_step, train_accuracy*100, train_loss))
 
   def test(self, test_dataset):
     assert self.initailized, 'Model not initailized!'

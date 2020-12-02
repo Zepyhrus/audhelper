@@ -59,6 +59,7 @@ class AudDataset(object):
         )
     
     self.__start = 0
+    random.shuffle(self.__data)
     self.__batch_size = batch_size
     self.__samples = samples
     self.__sample_rate = sample_rate
