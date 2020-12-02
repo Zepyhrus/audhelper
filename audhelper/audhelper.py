@@ -1,5 +1,5 @@
 __author__ = 'sherk'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 """
 
 """
@@ -241,20 +241,7 @@ class BaseKWS(object):
 
         # validation
         if val_dataset and (curr_step + 1) % self.eval_step_interval == 0:
-          total_accuracy = 0.
-          total_loss = 0.
-
-          for val_auds, val_labels in val_dataset:
-            val_summary, val_accuracy, val_loss = self.sess.run(
-              [self.__summaries, self.__accuracy, self.__loss],
-              feed_dict={
-                self.__audios: val_auds,
-                self.__labels: val_labels
-              }
-            )
-            total_accuracy += (val_accuracy * len(val_labels)) / val_dataset.size
-            total_loss += (val_loss * len(val_labels)) / val_dataset.size
-            self.__val_writer.add_summary(val_summary, curr_step)
+          total_accuracy, total_loss = self.test(val_dataset, curr_step=curr_step)
           
           if total_accuracy > best_accuracy:
             best_accuracy = total_accuracy
@@ -274,21 +261,34 @@ class BaseKWS(object):
       }
     )
     self.__train_writer.add_summary(train_summary, curr_step)
-    logging.info('%d: %.2f-%.4f' % (curr_step, train_accuracy*100, train_loss))
+    logging.info('%d, learning_rate: %.6f: %.2f-%.4f' % (curr_step, lr, train_accuracy*100, train_loss))
 
-  def test(self, test_dataset):
+  def test(self, test_dataset, curr_step=0):
     assert self.initailized, 'Model not initailized!'
 
     test_dataset.eval(self)
     total_accuracy = 0.
+    total_loss = 0.
     for test_auds, test_labels in test_dataset:
-      test_accuracy = self.sess.run(
-        self.__accuracy, feed_dict={self.__audios: test_auds, self.__labels: test_labels}
-      )
+      if not self.training:
+        test_accuracy = self.sess.run(
+          self.__accuracy, feed_dict={self.__audios: test_auds, self.__labels: test_labels}
+        )
+      else:
+        test_summary, test_accuracy, test_loss = self.sess.run(
+          [self.__summaries, self.__accuracy, self.__loss],
+          feed_dict={
+            self.__audios: test_auds,
+            self.__labels: test_labels
+          }
+        )
+        self.__val_writer.add_summary(test_summary, curr_step)
+        total_loss += (test_loss * len(test_labels))
       total_accuracy += (test_accuracy * len(test_labels))
     total_accuracy /= (test_dataset.size + _EPSILON)
+    total_loss /= (test_dataset.size + _EPSILON)
 
-    return total_accuracy
+    return total_accuracy, total_loss
 
   def save_module(self, save_dir):
     raise NotImplementedError
