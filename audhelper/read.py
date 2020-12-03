@@ -84,7 +84,7 @@ def compose_without_noise():
     PitchShift(p=_p/25),
   ]
   
-  return MyCompose(transforms, p=0.5, max_augs=3)
+  return MyCompose(transforms, p=1.0, max_augs=3)
 
 def nread(data, samples, sample_rate, shuffle, aug=None):
   # a faster implementation of normalize read with augmentation
