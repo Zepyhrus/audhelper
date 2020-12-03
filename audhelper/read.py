@@ -10,6 +10,7 @@ import numpy as np
 from scipy.io import wavfile
 
 from audiomentations import (
+  Compose,
   Gain,                   #  0.1701   0.1086
   AddGaussianNoise,       #  1.0177   0.7528
   TimeStretch,            # 10.8556   8.4630
@@ -142,7 +143,6 @@ def add_background_noise(aud, noise_aud, min_snr_in_db=3, max_snr_in_db=30):
   _aud /= normalize_factor
 
   return _aud
-
 
 
 def aread(audio, method='sf', aug=None):
