@@ -27,21 +27,7 @@ def textgrid_res(grid_file):
 
     label_st.append(_st)
     label_ed.append(_ed)
-
-    if '救命' in _wd:
-      labels.append(1)
-    elif '报警' in _wd:
-      labels.append(2)
-    elif '抢劫' in _wd:
-      labels.append(3)
-    elif '杀人' in _wd:
-      labels.append(4)
-    else:
-      labels.append(0)
-
-  labels = np.array(labels)
-  label_st = np.array(label_st)
-  label_ed = np.array(label_ed)
+    labels.append(_wd)
 
   return labels, label_st, label_ed
 
@@ -106,8 +92,25 @@ def alarm_eval(t1, t2, interval):
 
 def report_from_res(res_file, grid_file, interval=500, method='f1', word_index=1):
   # load labels and file
-  labels, st, et = textgrid_res(grid_file)
+  words, st, et = textgrid_res(grid_file)
+  st, et = np.array(st), np.array(et)
+  labels = np.zeros(len(words))
 
+  for i, word in enumerate(words):
+    if '救命' in word:
+      label = 1
+    elif '报警' in word:
+      label = 2
+    elif '抢劫' in word:
+      label = 3
+    elif '杀人' in word:
+      label = 4
+    else:
+      label = 0
+    
+    labels[i] = label
+
+  # load result
   res = np.genfromtxt(res_file, delimiter=',')
   res = np.concatenate((res[[0], :], res[1::int(interval/100), ])) # interval for 200 ms
   best = 5
