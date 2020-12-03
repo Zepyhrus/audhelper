@@ -7,9 +7,12 @@ import numpy as np
 
 from .read import nread, compose
 
-def checkdata(datasets):
-  for _i in datasets:
+def checkdata(cfg_datasets):
+  for _i in cfg_datasets:
     for _d in _i['train']:
+      assert glob(join(_d, '*.wav')), f'Empty dir {_d}!'
+
+    for _d in _i['val']:
       assert glob(join(_d, '*.wav')), f'Empty dir {_d}!'
 
   

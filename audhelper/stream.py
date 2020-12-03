@@ -91,24 +91,26 @@ def alarm_eval(t1, t2, interval):
 
 
 def report_from_res(res_file, grid_file, interval=500, method='f1', word_index=1):
-  # load labels and file
-  words, st, et = textgrid_res(grid_file)
-  st, et = np.array(st), np.array(et)
-  labels = np.zeros(len(words))
+  if grid_file is not None:
+    # load labels and file
+    words, st, et = textgrid_res(grid_file)
+    st, et = np.array(st), np.array(et)
+    labels = np.zeros(len(words))
 
-  for i, word in enumerate(words):
-    if '救命' in word:
-      label = 1
-    elif '报警' in word:
-      label = 2
-    elif '抢劫' in word:
-      label = 3
-    elif '杀人' in word:
-      label = 4
-    else:
-      label = 0
-    
-    labels[i] = label
+    for i, word in enumerate(words):
+      if '救命' in word:
+        label = 1
+      elif '报警' in word:
+        label = 2
+      elif '抢劫' in word:
+        label = 3
+      elif '杀人' in word:
+        label = 4
+      else:
+        label = 0
+      
+      labels[i] = label
+
 
   # load result
   res = np.genfromtxt(res_file, delimiter=',')
@@ -123,8 +125,11 @@ def report_from_res(res_file, grid_file, interval=500, method='f1', word_index=1
       alarms = alarms[:, word_index]
       time_alarms = np.arange(alarms.shape[0]) * interval / 1000
 
-      t1 = st[labels == 1]
-      t2 = time_alarms[alarms == 1]
+      if grid_file is None:
+        continue
+      
+      t1 = st[labels == word_index]
+      t2 = time_alarms[alarms == word_index]
 
       correct = alarm_eval(t1, t2, 2)
       recall = correct / (len(t1) + 1e-12) * 100
