@@ -186,7 +186,7 @@ class WavQueue(queue.Queue):
 
       self.res[st:ed, :] = preds
 
-      if batches % 25 == 0: # usually 25 batch would be a fine update interval
+      if batches % 50 == 0: # usually 25 batch would be a fine update interval
         logging.info('%.2f finished on %s batches...', batches / self.total_batches, self.total_batches)
 
       if batches == self.total_batches: break
