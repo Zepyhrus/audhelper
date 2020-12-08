@@ -1,5 +1,6 @@
 
 import pandas as pd
+import numpy as np
 
 def pformat(idx, cols, tk, hs):
   ''' cols stands for a list of strings '''
@@ -10,7 +11,7 @@ def pformat(idx, cols, tk, hs):
 def pbenchmark(table, alias=None, project=None):
   _t = table.pivot_table(
     index='word', columns='alias', values='score',
-    fill_value='-', aggfunc=lambda x: ''.join(x)
+    fill_value=0, aggfunc=lambda x: np.round(np.mean(x), 2)
   )
 
   token = '\t| '
