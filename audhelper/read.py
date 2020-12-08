@@ -1,4 +1,7 @@
 import os
+from os.path import join, split, basename
+
+from glob import glob
 import math
 import wave
 
@@ -8,6 +11,7 @@ import soundfile as sf
 from samplerate import resample
 import numpy as np
 from scipy.io import wavfile
+from scipy.signal import convolve
 
 from audiomentations import (
   Compose,
@@ -52,6 +56,26 @@ class MyCompose:
 
     return samples
 
+class MyAddImpulseResponse:
+  def __init__(self, ir_path, p=1.0):
+    self.ir_path = ir_path
+    self.ir_files = glob(join(self.ir_path, '*.wav'))
+    self.p = p
+
+  def __call__(self, samples, sample_rate):
+    if random.random() < self.p:
+      ir, _ = sf.read(random.choice(self.ir_files))
+
+      signal_ir = convolve(samples, ir)[:len(samples)]
+
+      normalize_factor = max(np.max(np.abs(signal_ir)), 1e-6)
+      signal_ir /= normalize_factor
+
+      return signal_ir
+    else:
+      return samples
+
+
 def compose(sounds_path):
   _p = 0.2
 
@@ -63,6 +87,7 @@ def compose(sounds_path):
     TimeMask(p=_p, max_band_part=0.25),
     AddGaussianSNR(p=_p),
     ClippingDistortion(p=_p, max_percentile_threshold=20),
+    MyAddImpulseResponse(p=_p, ir_path='data/impulse'),
     AddBackgroundNoise(sounds_path=sounds_path, p=_p),
     TimeStretch(p=_p/10),
     PitchShift(p=_p/30),
@@ -85,7 +110,7 @@ def compose_without_noise():
     PitchShift(p=_p/25),
   ]
   
-  return MyCompose(transforms, p=1.0, max_augs=3)
+  return MyCompose(transforms, p=1.0, max_augs=5)
 
 def nread(data, samples, sample_rate, shuffle, aug=None):
   # a faster implementation of normalize read with augmentation
@@ -143,6 +168,24 @@ def add_background_noise(aud, noise_aud, min_snr_in_db=3, max_snr_in_db=30):
   _aud /= normalize_factor
 
   return _aud
+
+
+def add_impulse_noise(aud, ir):  
+  signal_ir = convolve(aud, ir)
+
+  start = np.random.randint(len(ir)//2)
+  signal_ir = signal_ir[start:start+len(aud)]
+
+  normalize_factor = max(np.max(np.abs(signal_ir)), 1e-6)
+  signal_ir /= normalize_factor
+
+  return signal_ir
+
+
+
+
+
+
 
 
 def aread(audio, method='sf', aug=None):
