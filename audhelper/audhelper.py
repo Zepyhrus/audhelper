@@ -3,9 +3,6 @@ __version__ = '0.2.3'
 """
 
 """
-import logging
-_f = '%(asctime)s: %(message)s'
-logging.basicConfig(format=_f, level=logging.INFO, datefmt='%H:%M:%S')
 
 import datetime
 
@@ -13,7 +10,6 @@ from os.path import join
 from itertools import chain
 
 import numpy as np
-import logging
 
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -181,7 +177,7 @@ class BaseKWS(object):
 
   def infer(self, audio):
     if not self.initailized:
-      logging.warning('Model not initailized!')
+      print('Model not initailized!')
       self.initialize()
 
     aud = nread(
@@ -194,7 +190,7 @@ class BaseKWS(object):
   
   def batch_infer(self, audios):
     if not self.initailized:
-      logging.warning('Model not initailized!')
+      print('Model not initailized!')
       self.initialize()
     
     # assume the audios are already normalized!
@@ -202,7 +198,7 @@ class BaseKWS(object):
 
   def pred(self, audios):
     if not self.initailized:
-      logging.warning('Model not initailized!')
+      print('Model not initailized!')
       self.initialize()
 
     assert len(audios) <= self.batch_size, f'Input length {len(audios)} is larger than batch size{self.batch_size}'    
@@ -261,7 +257,7 @@ class BaseKWS(object):
       }
     )
     self.__train_writer.add_summary(train_summary, curr_step)
-    logging.info('%d, learning_rate: %.5f: %.2f-%.4f' % (curr_step, lr, train_accuracy*100, train_loss))
+    print('%d, learning_rate: %.5f: %.2f-%.4f' % (curr_step, lr, train_accuracy*100, train_loss))
 
   def test(self, test_dataset, curr_step=0):
     assert self.initailized, 'Model not initailized!'

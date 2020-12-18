@@ -1,4 +1,4 @@
-import threading, logging, queue, time
+import threading, queue, time
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment as KM
@@ -187,12 +187,12 @@ class WavQueue(queue.Queue):
       self.res[st:ed, :] = preds
 
       if batches % 50 == 0: # usually 25 batch would be a fine update interval
-        logging.info('%.2f finished on %s batches...', batches / self.total_batches, self.total_batches)
+        print('%.2f finished on %s batches...' % (batches / self.total_batches, self.total_batches))
 
       if batches == self.total_batches: break
     
     if self.res_file:
-      logging.info('Res file saved to %s', self.res_file)
+      print('Res file saved to %s' % self.res_file)
       np.savetxt(self.res_file, self.res, delimiter=',')
 
   def produce(self):
