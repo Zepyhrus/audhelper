@@ -56,6 +56,7 @@ class MyCompose:
 
     return samples
 
+
 class MyAddImpulseResponse:
   def __init__(self, ir_path, p=1.0):
     self.ir_path = ir_path
@@ -95,6 +96,7 @@ def compose(sounds_path):
   
   return Compose(transforms, p=0.4, shuffle=True)
 
+
 def compose_without_noise():
   _p = 0.25
 
@@ -111,6 +113,7 @@ def compose_without_noise():
   ]
   
   return MyCompose(transforms, p=1.0, max_augs=5)
+
 
 def nread(data, samples, sample_rate, shuffle, aug=None):
   # a faster implementation of normalize read with augmentation
@@ -180,12 +183,6 @@ def add_impulse_noise(aud, ir):
   signal_ir /= normalize_factor
 
   return signal_ir
-
-
-
-
-
-
 
 
 def aread(audio, method='sf', aug=None):
