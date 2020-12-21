@@ -88,7 +88,7 @@ def compose(sounds_path):
     TimeMask(p=_p, max_band_part=0.25),
     AddGaussianSNR(p=_p),
     ClippingDistortion(p=_p, max_percentile_threshold=20),
-    MyAddImpulseResponse(p=_p, ir_path='data/impulse'),
+    # MyAddImpulseResponse(p=_p, ir_path='data/impulse'),
     AddBackgroundNoise(sounds_path=sounds_path, p=_p),
     TimeStretch(p=_p/10),
     PitchShift(p=_p/30),
@@ -108,6 +108,7 @@ def compose_without_noise():
     TimeMask(p=_p, max_band_part=0.25),
     AddGaussianSNR(p=_p),
     ClippingDistortion(p=_p, max_percentile_threshold=20),
+    MyAddImpulseResponse(p=_p, ir_path='data/impulse'),
     TimeStretch(p=_p/10),
     PitchShift(p=_p/25),
   ]
