@@ -38,6 +38,7 @@ class MyGain(Gain):
 class MyCompose:
   def __init__(self, transforms, p=1.0, max_augs=3):
     assert len(transforms), "No transforms provided"
+    assert max_augs <= len(transforms), "max augs is smaller than transforms"
     self.transforms = transforms
     self.p = p
     self.max_augs = max_augs
@@ -49,7 +50,7 @@ class MyCompose:
 
   def __call__(self, samples, sample_rate):
     if random.random() < self.p:
-      picked_trans = random.sample(self.transforms, random.randint(1, min(len(self.transforms), self.max_augs)))
+      picked_trans = random.sample(self.transforms, self.max_augs)
       
       for trans in picked_trans:
         samples = trans(samples, sample_rate)
@@ -88,7 +89,7 @@ def compose(sounds_path):
     TimeMask(p=_p, max_band_part=0.25),
     AddGaussianSNR(p=_p),
     ClippingDistortion(p=_p, max_percentile_threshold=20),
-    # MyAddImpulseResponse(p=_p, ir_path='data/impulse'),
+    MyAddImpulseResponse(p=_p, ir_path='data/impulse'),
     AddBackgroundNoise(sounds_path=sounds_path, p=_p),
     TimeStretch(p=_p/10),
     PitchShift(p=_p/30),
@@ -113,7 +114,7 @@ def compose_without_noise():
     PitchShift(p=_p/25),
   ]
   
-  return MyCompose(transforms, p=1.0, max_augs=5)
+  return MyCompose(transforms, p=1.0, max_augs=3)
 
 
 def nread(data, samples, sample_rate, shuffle, aug=None):
