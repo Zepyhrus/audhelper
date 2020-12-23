@@ -99,15 +99,15 @@ def compose(sounds_path):
 
 
 def compose_without_noise(ir_path='data/impulse'):
-  _p = 0.5
+  _p = 0.25
 
   transforms = [
     AddGaussianNoise(p=_p),
-    Shift(p=1, min_fraction=-0.2, max_fraction=0.2),
+    Shift(p=_p, min_fraction=-0.2, max_fraction=0.2),
     FrequencyMask(p=_p),
     TimeMask(p=_p, max_band_part=0.25),
     AddGaussianSNR(p=_p),
-    ClippingDistortion(p=1, max_percentile_threshold=20),
+    ClippingDistortion(p=_p, max_percentile_threshold=20),
     MyAddImpulseResponse(p=_p, ir_path=ir_path),
     TimeStretch(p=_p/10),
     PitchShift(p=_p/25),
